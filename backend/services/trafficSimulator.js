@@ -1,5 +1,5 @@
-const Intersection = require('./models/Intersection');
-const { optimizeSignal } = require('./controllers/aiController');
+const Intersection = require('../models/Intersection');
+const { optimizeSignal } = require('../controllers/aiController');
 
 const simulateTraffic = async (io) => {
     try {
