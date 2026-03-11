@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, Clock, MapPin } from 'lucide-react';
+import { AlertCircle, Clock, MapPin, Shield } from 'lucide-react';
 
 const AlertsSidebar = ({ intersections = [] }) => {
   // Generate mock alerts based on density

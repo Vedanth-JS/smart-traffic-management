@@ -1,14 +1,11 @@
-const Intersection = require('../models/Intersection');
 const { optimizeSignal } = require('../controllers/aiController');
 
-const simulateTraffic = async (io) => {
+const simulateTraffic = async (io, intersections) => {
     try {
-        const intersections = await Intersection.find();
-        
-        for (let intersection of intersections) {
+        const updated = intersections.map(intersection => {
             // Simulate random traffic fluctuations
             intersection.lanes = intersection.lanes.map(lane => {
-                const change = (Math.random() - 0.4) * 0.1; // Bias towards slight increase
+                const change = (Math.random() - 0.4) * 0.1;
                 lane.density = Math.max(0.1, Math.min(1.0, lane.density + change));
                 lane.vehicleCount = Math.floor(lane.density * 50);
                 return lane;
@@ -22,18 +19,19 @@ const simulateTraffic = async (io) => {
             intersection.signalData.timer -= 5;
             if (intersection.signalData.timer <= 0) {
                 intersection.signalData.currentPhase = (intersection.signalData.currentPhase === 'NORTH_SOUTH') ? 'EAST_WEST' : 'NORTH_SOUTH';
-                intersection.signalData.timer = aiRecommendation.duration || 30;
+                intersection.signalData.timer = Math.round(aiRecommendation.duration || 30);
             }
 
-            await intersection.save();
-        }
+            return intersection;
+        });
 
         // Broadcast updates to all clients
-        const updatedIntersections = await Intersection.find();
-        io.emit('trafficData', updatedIntersections);
+        io.emit('trafficData', updated);
+        return updated;
         
     } catch (err) {
         console.error('Simulation Error:', err);
+        return intersections;
     }
 };
 
